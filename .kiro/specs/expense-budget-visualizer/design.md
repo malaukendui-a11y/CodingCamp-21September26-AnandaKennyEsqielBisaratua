@@ -8,9 +8,9 @@ Seluruh data disimpan di **Local Storage** browser. Tidak ada request ke server.
 
 | File | Peran |
 |---|---|
-| `MiniProject.HTML` | Struktur dan markup semantik |
-| `css/MiniProject.css` | Styling, design tokens, layout responsif |
-| `js/MiniProject.js` | Seluruh logika aplikasi |
+| `index.html` | Struktur dan markup semantik |
+| `css/style.css` | Styling, design tokens, layout responsif |
+| `js/app.js` | Seluruh logika aplikasi |
 
 **Fitur yang dikerjakan:** Input transaksi, Daftar transaksi, Total balance, Visual chart (Chart.js), Persistensi, Kategori kustom, Highlight over limit, Sort daftar transaksi.
 
@@ -72,7 +72,7 @@ flowchart TD
 
 ### Pengelompokan Kode JavaScript
 
-File `js/MiniProject.js` dibagi dengan komentar seksi berurutan:
+File `js/app.js` dibagi dengan komentar seksi berurutan:
 
 ```
 // ─── 1 KONSTANTA ─────────────────────────────────────────────────────────────
