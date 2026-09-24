@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Expense &amp; Budget Visualizer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Expense &amp; Budget Visualizer</h1>
+    </header>
+
+    <main class="container">
+      <div id="storage-warning" role="status" hidden>
+        Data tidak dapat disimpan. Perubahan akan hilang saat halaman ditutup.
+      </div>
+
+      <section id="total" class="card">
+        <p class="card-label">Total Balance</p>
+        <p id="total-value" aria-live="polite">Rp 0</p>
+      </section>
+
+      <section id="add-transaction" class="card">
+        <h2>Add Transaction</h2>
+        <form id="transaction-form" novalidate>
+          <label for="item-name">Item Name</label>
+          <input id="item-name" name="name" type="text" maxlength="50" autocomplete="off" aria-describedby="item-name-error">
+          <p id="item-name-error" class="field-error" aria-live="polite"></p>
+
+          <label for="amount">Amount (Rp)</label>
+          <input id="amount" name="amount" type="text" inputmode="numeric" autocomplete="off" aria-describedby="amount-error">
+          <p id="amount-error" class="field-error" aria-live="polite"></p>
+
+          <label for="category">Category</label>
+          <select id="category" name="category" aria-describedby="category-error"></select>
+          <p id="category-error" class="field-error" aria-live="polite"></p>
+
+          <button type="submit">Add Transaction</button>
+        </form>
+      </section>
+
+      <section id="transactions" class="card">
+        <h2>Transactions</h2>
+        <label for="sort-select">Sort by</label>
+        <select id="sort-select">
+          <option value="default">Default (terbaru di atas)</option>
+          <option value="amount-asc">Amount: kecil ke besar</option>
+          <option value="amount-desc">Amount: besar ke kecil</option>
+          <option value="category-asc">Category: A-Z</option>
+        </select>
+        <ul id="transaction-list"></ul>
+        <p id="list-empty">Belum ada transaksi</p>
+      </section>
+
+      <section id="chart" class="card">
+        <h2>Spending by Category</h2>
+        <div class="chart-wrap">
+          <canvas id="category-chart" role="img" aria-label="Grafik pie pengeluaran per kategori"></canvas>
+        </div>
+        <p id="chart-empty">Belum ada data</p>
+      </section>
+
+      <section id="categories" class="card">
+        <h2>Categories &amp; Limits</h2>
+        <form id="category-form" novalidate>
+          <label for="category-name">New category name</label>
+          <input id="category-name" name="categoryName" type="text" maxlength="30" autocomplete="off" aria-describedby="category-name-error">
+          <button type="submit">Add Category</button>
+          <p id="category-name-error" class="field-error" aria-live="polite"></p>
+        </form>
+        <ul id="limit-list"></ul>
+      </section>
+    </main>
+  </body>
+</html>

@@ -70,7 +70,7 @@ Implementasi aplikasi web *mobile-first* berbasis HTML + CSS + JavaScript murni.
 - [ ] 5. JS Bagian 4–5: Validasi dan Data Turunan
   - [ ] 5.1 Tulis Bagian 4 (Validasi)
     - Tambahkan komentar seksi `// ─── 4 VALIDASI`
-    - `parseAmount(text)`: hapus semua `.` lalu `parseInt`; kembalikan `{ok, value?, error?}`; tangani kosong, non-angka, ≤ 0, desimal, > MAX_AMOUNT
+    - `parseAmount(text)`: kembalikan `{ok, value?, error?}`; tangani kosong, non-angka, ≤ 0, desimal, > MAX_AMOUNT
     - `validateTransaction(input, categories)`: validasi ketiga field (nama, amount, kategori); kembalikan `{ok, values?, errors?}` di mana `errors` adalah map `fieldId → pesan`
     - `validateCategoryName(text, categories)`: trim, cek panjang 0, cek > CATEGORY_MAX, cek duplikat case-sensitive; kembalikan `{ok, name?, error?}`
     - `parseLimit(text)`: string kosong → `{ok: true, value: null}`; integer 1–MAX_AMOUNT → valid; selainnya → error
@@ -88,6 +88,7 @@ Implementasi aplikasi web *mobile-first* berbasis HTML + CSS + JavaScript murni.
 
 - [ ] 6. JS Bagian 6 Render — Subfungsi inti
   - [ ] 6.1 Implementasikan `renderTotal` dan `renderCategoryOptions`
+    - Pertahankan pilihan yang sedang aktif.
     - Tambahkan komentar seksi `// ─── 6 RENDER`
     - `renderTotal(total)`: set `#total-value.textContent = formatRupiah(total)`
     - `renderCategoryOptions()`: rebuild `<option>` di dropdown `#transaction-form select[name="category"]` menggunakan `new Option(cat.name, cat.name)`; tambahkan opsi placeholder kosong di posisi pertama
@@ -103,7 +104,7 @@ Implementasi aplikasi web *mobile-first* berbasis HTML + CSS + JavaScript murni.
     - Gunakan variabel module-level `let chartInstance = null`
     - Jika `transactions.length === 0`: hancurkan instance yang ada (`chartInstance.destroy()`), set ke `null`, sembunyikan canvas, tampilkan `#chart-empty`
     - Jika ada transaksi: sembunyikan `#chart-empty`, tampilkan canvas; jika `chartInstance === null` buat `new Chart(ctx, config)`, jika tidak panggil `chartInstance.data = …; chartInstance.update()`
-    - Config Chart.js: tipe `'doughnut'` atau `'pie'`, label dari nama kategori, data dari `totals`, backgroundColor dari `category.color`
+    - Config Chart.js: tipe `'pie'`, label dari nama kategori, data dari `totals`, backgroundColor dari `category.color`
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
   - [ ] 6.4 Implementasikan `buildLimitRows` dan `updateLimitStatus`
     - `buildLimitRows()`: rebuild seluruh `#limit-list` dengan satu `<li>` per kategori; setiap `<li>` berisi label nama, `<input type="text">` untuk limit dengan `data-category`, dan area penanda over-limit
@@ -117,7 +118,7 @@ Implementasi aplikasi web *mobile-first* berbasis HTML + CSS + JavaScript murni.
     - _Requirements: 1.3, 5.2, 6.2, 7.3_
   - [ ] 6.6 Implementasikan fungsi `render()` utama dan fungsi mutasi state
     - `render()`: hitung `sorted`, `total`, `totals` sekali, kemudian panggil semua subfungsi render secara berurutan
-    - `addTransaction(values)`: buat objek `Transaction` dengan `generateId()` dan `Date.now()`; `state.transactions.unshift(newTx)` (terbaru di atas); kembalikan transaksi baru
+    - `addTransaction(values)`: buat objek `Transaction` dengan `generateId()` dan `Date.now()`; `state.transactions.push(newTx)` (terbaru di atas); kembalikan transaksi baru
     - `deleteTransaction(id)`: filter `state.transactions` untuk hapus berdasarkan id
     - `addCategory(name)`: buat objek `Category` dengan `pickCategoryColor(state.categories)`; push ke `state.categories`
     - `pickCategoryColor(categories)`: coba warna dari `PALETTE`, jika habis gunakan rumus golden-angle hue
@@ -131,6 +132,7 @@ Implementasi aplikasi web *mobile-first* berbasis HTML + CSS + JavaScript murni.
 
 - [ ] 8. JS Bagian 7: Event Handlers
   - [ ] 8.1 Implementasikan `handleTransactionSubmit`
+    - Tambahkan reset form sebelum fokus ke Item Name 
     - Tambahkan komentar seksi `// ─── 7 EVENT HANDLER`
     - Panggil `e.preventDefault()`, kemudian `clearErrors(form)`
     - Panggil `validateTransaction(input, state.categories)`; jika tidak valid, panggil `showFieldError` untuk setiap field yang error dan return
