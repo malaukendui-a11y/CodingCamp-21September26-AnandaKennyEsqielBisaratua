@@ -588,8 +588,61 @@ function setSortMode(mode) {
 
 // ─── 7 EVENT HANDLER
 
-// (diisi di langkah berikutnya)
+function handleTransactionSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  clearErrors(form);
+
+  const raw = {
+    name: form.elements['name'].value,
+    amount: form.elements['amount'].value,
+    category: form.elements['category'].value,
+  };
+
+  const result = validateTransaction(raw, state.categories);
+
+  if (!result.ok) {
+    Object.entries(result.errors).forEach(function ([fieldId, message]) {
+      showFieldError(fieldId, message);
+    });
+    return;
+  }
+
+  addTransaction(result.values);
+  saveState();
+  form.reset();
+  render();
+  document.getElementById('item-name').focus();
+}
+
+function handleListClick(e) {
+  const btn = e.target.closest('[data-id]');
+  if (btn === null) return;
+
+  const id = btn.dataset.id;
+  deleteTransaction(id);
+  saveState();
+  render();
+}
+
+function handleSortChange(e) {
+  setSortMode(e.target.value);
+  render();
+}
 
 // ─── 8 INIT
 
-// (diisi di langkah berikutnya)
+function init() {
+  const loaded = loadState();
+  state.transactions = loaded.transactions;
+  state.categories = loaded.categories;
+
+  buildLimitRows();
+  render();
+
+  document.getElementById('transaction-form').addEventListener('submit', handleTransactionSubmit);
+  document.getElementById('transaction-list').addEventListener('click', handleListClick);
+  document.getElementById('sort-select').addEventListener('change', handleSortChange);
+}
+
+init();
