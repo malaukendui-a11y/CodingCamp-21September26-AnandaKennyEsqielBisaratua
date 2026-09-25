@@ -553,7 +553,69 @@ function renderChart(categories, totals) {
 }
 
 function buildLimitRows() {
-  // diisi di langkah berikutnya
+  const ul = document.getElementById('limit-list');
+
+  const liArray = state.categories.map(function (cat) {
+    const li = document.createElement('li');
+    li.className = 'limit-row';
+    li.dataset.category = cat.name;
+
+    // .limit-info
+    const divInfo = document.createElement('div');
+    divInfo.className = 'limit-info';
+
+    const spanDot = document.createElement('span');
+    spanDot.className = 'color-dot';
+    spanDot.style.backgroundColor = cat.color;
+
+    const spanName = document.createElement('span');
+    spanName.className = 'limit-name';
+    spanName.textContent = cat.name;
+
+    const spanUsed = document.createElement('span');
+    spanUsed.className = 'limit-used';
+    // isi diperbarui oleh updateLimitStatus
+
+    divInfo.appendChild(spanDot);
+    divInfo.appendChild(spanName);
+    divInfo.appendChild(spanUsed);
+
+    // input limit
+    const input = document.createElement('input');
+    input.className = 'limit-input';
+    input.type = 'text';
+    input.inputMode = 'numeric';
+    input.autocomplete = 'off';
+    input.dataset.category = cat.name;
+    input.setAttribute('aria-label', 'Limit ' + cat.name);
+    input.placeholder = 'No limit';
+    input.value = cat.limit !== null ? String(cat.limit) : '';
+
+    // .limit-flag
+    const spanFlag = document.createElement('span');
+    spanFlag.className = 'limit-flag';
+    spanFlag.hidden = true;
+
+    const spanIcon = document.createElement('span');
+    spanIcon.setAttribute('aria-hidden', 'true');
+    spanIcon.textContent = '⚠';
+
+    spanFlag.appendChild(spanIcon);
+    spanFlag.appendChild(document.createTextNode(' Melebihi limit'));
+
+    // .field-error
+    const pError = document.createElement('p');
+    pError.className = 'field-error';
+
+    li.appendChild(divInfo);
+    li.appendChild(input);
+    li.appendChild(spanFlag);
+    li.appendChild(pError);
+
+    return li;
+  });
+
+  ul.replaceChildren(...liArray);
 }
 
 function updateLimitStatus(totals) {
@@ -687,6 +749,27 @@ function handleSortChange(e) {
   render();
 }
 
+function handleCategorySubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  clearErrors(form);
+
+  const raw = form.elements['categoryName'].value;
+  const result = validateCategoryName(raw, state.categories);
+
+  if (!result.ok) {
+    showFieldError('category-name', result.error);
+    return;
+  }
+
+  addCategory(result.name);
+  saveState();
+  form.reset();
+  buildLimitRows();
+  render();
+  document.getElementById('category-name').focus();
+}
+
 // ─── 8 INIT
 
 function init() {
@@ -700,6 +783,7 @@ function init() {
   document.getElementById('transaction-form').addEventListener('submit', handleTransactionSubmit);
   document.getElementById('transaction-list').addEventListener('click', handleListClick);
   document.getElementById('sort-select').addEventListener('change', handleSortChange);
+  document.getElementById('category-form').addEventListener('submit', handleCategorySubmit);
 }
 
 init();
