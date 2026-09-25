@@ -491,8 +491,65 @@ function renderTransactionList(list, totals, categories) {
   ul.replaceChildren(...liArray);
 }
 
+let chartInstance = null;
+
 function renderChart(categories, totals) {
-  // diisi di langkah berikutnya
+  const canvas = document.getElementById('category-chart');
+  const emptyMsg = document.getElementById('chart-empty');
+
+  const hasData = categories.some(function (c) { return totals[c.name] > 0; });
+
+  if (!hasData) {
+    if (chartInstance !== null) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
+    canvas.hidden = true;
+    emptyMsg.hidden = false;
+    return;
+  }
+
+  canvas.hidden = false;
+  emptyMsg.hidden = true;
+
+  const filtered = categories.filter(function (c) { return totals[c.name] > 0; });
+  const labels = filtered.map(c => c.name);
+  const data = filtered.map(c => totals[c.name]);
+  const colors = filtered.map(c => c.color);
+
+  if (chartInstance === null) {
+    chartInstance = new Chart(canvas.getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors,
+          borderColor: '#FFFFFF',
+          borderWidth: 2,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return context.label + ': ' + formatRupiah(context.parsed);
+              },
+            },
+          },
+        },
+      },
+    });
+  } else {
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = data;
+    chartInstance.data.datasets[0].backgroundColor = colors;
+    chartInstance.update();
+  }
 }
 
 function buildLimitRows() {
