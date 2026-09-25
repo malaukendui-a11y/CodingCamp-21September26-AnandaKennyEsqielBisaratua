@@ -406,7 +406,185 @@ function showStorageWarning() {
   }
 }
 
-// (diisi di langkah berikutnya)
+function renderTotal(total) {
+  document.getElementById('total-value').textContent = formatRupiah(total);
+}
+
+function renderCategoryOptions() {
+  const select = document.getElementById('category');
+  const prevValue = select.value;
+
+  select.replaceChildren();
+  select.appendChild(new Option('Pilih kategori', ''));
+
+  state.categories.forEach(function (cat) {
+    select.appendChild(new Option(cat.name, cat.name));
+  });
+
+  const stillExists = state.categories.some(function (cat) {
+    return cat.name === prevValue;
+  });
+
+  if (stillExists) {
+    select.value = prevValue;
+  }
+}
+
+function renderTransactionList(list, totals, categories) {
+  const ul = document.getElementById('transaction-list');
+  const emptyMsg = document.getElementById('list-empty');
+
+  emptyMsg.hidden = list.length > 0;
+
+  const liArray = list.map(function (tx) {
+    const catObj = categories.find(function (c) { return c.name === tx.category; });
+    const overLimit = catObj ? isOverLimit(catObj, totals) : false;
+
+    const li = document.createElement('li');
+    li.className = 'tx-item' + (overLimit ? ' over-limit' : '');
+
+    const divMain = document.createElement('div');
+    divMain.className = 'tx-main';
+
+    const spanName = document.createElement('span');
+    spanName.className = 'tx-name';
+    spanName.textContent = tx.name;
+
+    const spanAmount = document.createElement('span');
+    spanAmount.className = 'tx-amount';
+    spanAmount.textContent = formatRupiah(tx.amount);
+
+    const spanCategory = document.createElement('span');
+    spanCategory.className = 'tx-category';
+    spanCategory.textContent = tx.category;
+
+    divMain.appendChild(spanName);
+    divMain.appendChild(spanAmount);
+    divMain.appendChild(spanCategory);
+
+    if (overLimit) {
+      const spanFlag = document.createElement('span');
+      spanFlag.className = 'limit-flag';
+
+      const spanIcon = document.createElement('span');
+      spanIcon.setAttribute('aria-hidden', 'true');
+      spanIcon.textContent = '⚠';
+
+      spanFlag.appendChild(spanIcon);
+      spanFlag.appendChild(document.createTextNode(' Melebihi limit'));
+      divMain.appendChild(spanFlag);
+    }
+
+    const btnDelete = document.createElement('button');
+    btnDelete.type = 'button';
+    btnDelete.className = 'btn-delete';
+    btnDelete.dataset.id = tx.id;
+    btnDelete.setAttribute('aria-label', 'Hapus ' + tx.name);
+    btnDelete.textContent = 'Delete';
+
+    li.appendChild(divMain);
+    li.appendChild(btnDelete);
+
+    return li;
+  });
+
+  ul.replaceChildren(...liArray);
+}
+
+function renderChart(categories, totals) {
+  // diisi di langkah berikutnya
+}
+
+function buildLimitRows() {
+  // diisi di langkah berikutnya
+}
+
+function updateLimitStatus(totals) {
+  // diisi di langkah berikutnya
+}
+
+function showFieldError(inputId, message) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+
+  input.setAttribute('aria-invalid', 'true');
+
+  const describedBy = input.getAttribute('aria-describedby');
+  if (describedBy) {
+    const errorEl = document.getElementById(describedBy);
+    if (errorEl) {
+      errorEl.textContent = message;
+    }
+  }
+}
+
+function clearErrors(form) {
+  form.querySelectorAll('[aria-invalid="true"]').forEach(function (el) {
+    el.removeAttribute('aria-invalid');
+  });
+  form.querySelectorAll('.field-error').forEach(function (el) {
+    el.textContent = '';
+  });
+}
+
+function render() {
+  const sorted = getSortedTransactions(state.transactions, state.sortMode);
+  const total = calcTotal(state.transactions);
+  const totals = calcTotalsByCategory(state.transactions, state.categories);
+
+  renderTotal(total);
+  renderCategoryOptions();
+  renderTransactionList(sorted, totals, state.categories);
+  renderChart(state.categories, totals);
+  updateLimitStatus(totals);
+}
+
+function addTransaction(values) {
+  const tx = {
+    id: generateId(),
+    name: values.name,
+    amount: values.amount,
+    category: values.category,
+    createdAt: Date.now(),
+  };
+  state.transactions.unshift(tx);
+  return tx;
+}
+
+function deleteTransaction(id) {
+  state.transactions = state.transactions.filter(function (tx) {
+    return tx.id !== id;
+  });
+}
+
+function pickCategoryColor(categories) {
+  const usedColors = categories.map(function (c) { return c.color; });
+  const found = PALETTE.find(function (color) {
+    return !usedColors.includes(color);
+  });
+  if (found !== undefined) {
+    return found;
+  }
+  const hue = Math.round((categories.length * 137.508) % 360);
+  return `hsl(${hue}, 55%, 45%)`;
+}
+
+function addCategory(name) {
+  const cat = { name, color: pickCategoryColor(state.categories), limit: null };
+  state.categories.push(cat);
+  return cat;
+}
+
+function setCategoryLimit(name, limit) {
+  const cat = state.categories.find(function (c) { return c.name === name; });
+  if (cat) {
+    cat.limit = limit;
+  }
+}
+
+function setSortMode(mode) {
+  state.sortMode = SORT_MODES.includes(mode) ? mode : 'default';
+}
 
 // ─── 7 EVENT HANDLER
 
