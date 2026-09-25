@@ -619,7 +619,23 @@ function buildLimitRows() {
 }
 
 function updateLimitStatus(totals) {
-  // diisi di langkah berikutnya
+  const rows = document.querySelectorAll('#limit-list .limit-row');
+
+  rows.forEach(function (li) {
+    const name = li.dataset.category;
+    const category = state.categories.find(function (c) { return c.name === name; });
+    if (!category) return;
+
+    const used = totals[name] || 0;
+    const over = isOverLimit(category, totals);
+
+    li.querySelector('.limit-used').textContent =
+      'Terpakai ' + formatRupiah(used) +
+      (category.limit !== null ? ' dari ' + formatRupiah(category.limit) : '');
+
+    li.classList.toggle('over-limit', over);
+    li.querySelector('.limit-flag').hidden = !over;
+  });
 }
 
 function showFieldError(inputId, message) {
@@ -770,6 +786,31 @@ function handleCategorySubmit(e) {
   document.getElementById('category-name').focus();
 }
 
+function handleLimitChange(e) {
+  const input = e.target.closest('.limit-input');
+  if (input === null) return;
+
+  const li = input.closest('.limit-row');
+  const name = input.dataset.category;
+  const errorEl = li.querySelector('.field-error');
+
+  const result = parseLimit(input.value);
+
+  if (!result.ok) {
+    errorEl.textContent = result.error;
+    const cat = state.categories.find(c => c.name === name);
+    input.value = cat && cat.limit !== null ? String(cat.limit) : '';
+    return;
+  }
+
+  errorEl.textContent = '';
+  setCategoryLimit(name, result.value);
+  saveState();
+  const totals = calcTotalsByCategory(state.transactions, state.categories);
+  updateLimitStatus(totals);
+  renderTransactionList(getSortedTransactions(state.transactions, state.sortMode), totals, state.categories);
+}
+
 // ─── 8 INIT
 
 function init() {
@@ -784,6 +825,7 @@ function init() {
   document.getElementById('transaction-list').addEventListener('click', handleListClick);
   document.getElementById('sort-select').addEventListener('change', handleSortChange);
   document.getElementById('category-form').addEventListener('submit', handleCategorySubmit);
+  document.getElementById('limit-list').addEventListener('change', handleLimitChange);
 }
 
 init();
